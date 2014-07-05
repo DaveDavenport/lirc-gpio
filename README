@@ -1,0 +1,6 @@
+Module taken from http://aron.ws/projects/lirc_rpi/
+
+ * Modified to be transmit only (don't care about receiving)
+ * modified to be more generic.
+ * Use different GPIO API.
+
