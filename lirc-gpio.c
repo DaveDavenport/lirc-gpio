@@ -293,7 +293,6 @@ static irqreturn_t irq_handler(int i, void *blah, struct pt_regs *regs)
 
 	return IRQ_HANDLED;
 }
-#endif
 
 static int is_right_chip(struct gpio_chip *chip, void *data)
 {
@@ -304,6 +303,7 @@ static int is_right_chip(struct gpio_chip *chip, void *data)
 	return 0;
 }
 
+#endif
 static int init_port(void)
 {
 	int i, nlow, nhigh, ret, irq;
@@ -313,11 +313,11 @@ static int init_port(void)
 	//if (!gpiochip)
  //		return -ENODEV;
 
-	if (gpio_request(gpio_out_pin, LIRC_DRIVER_NAME " ir/out")) {
-		printk(KERN_ALERT LIRC_DRIVER_NAME
-		       ": cant claim gpio pin %d\n", gpio_out_pin);
-		ret = -ENODEV;
-		goto exit_init_port;
+
+	if (!gpio_is_valid(gpio_out_pin)) {
+		printk("gpio_remote module: requested GPIO is not valid\n");
+		// return failure
+		return -1;
 	}
 
 	int err = gpio_request(gpio_out_pin ,"gpio_remoteIRQ");
@@ -700,6 +700,7 @@ module_init(lirc_rpi_init_module);
 module_exit(lirc_rpi_exit_module);
 
 MODULE_DESCRIPTION("Infra-red receiver and blaster driver for Raspberry Pi GPIO.");
+MODULE_AUTHOR("Qball Cow <qball@gmpclient.org>");
 MODULE_AUTHOR("Aron Robert Szabo <aron@reon.hu>");
 MODULE_AUTHOR("Michael Bishop <cleverca22@gmail.com>");
 MODULE_LICENSE("GPL");
@@ -710,7 +711,6 @@ MODULE_PARM_DESC(gpio_out_pin, "GPIO output/transmitter pin number of the BCM"
 		 " 14, 15, 17, 18, 21, 22, 23, 24, 25, default 17");
 #if 0
 module_param(gpio_in_pin, int, S_IRUGO);
-#endif
 MODULE_PARM_DESC(gpio_in_pin, "GPIO input pin number of the BCM processor."
 		 " Valid pin numbers are: 0, 1, 4, 8, 7, 9, 10, 11, 14, 15,"
 		 " 17, 18, 21, 22, 23, 24, 25, default 18");
@@ -718,6 +718,8 @@ MODULE_PARM_DESC(gpio_in_pin, "GPIO input pin number of the BCM processor."
 module_param(sense, bool, S_IRUGO);
 MODULE_PARM_DESC(sense, "Override autodetection of IR receiver circuit"
 		 " (0 = active high, 1 = active low )");
+
+#endif
 
 module_param(softcarrier, bool, S_IRUGO);
 MODULE_PARM_DESC(softcarrier, "Software carrier (0 = off, 1 = on, default on)");
